@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+lightning_logs/
+n2v_models/
+.git_old/
+.ipynb_checkpoints/
+*.tiff
+events*
+*.zarr
+*.tiff
+*.tar
+.venv/
+.vscode/
+checkpoints/
+logs/
