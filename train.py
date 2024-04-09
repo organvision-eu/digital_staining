@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from lightning.pytorch.strategies import DDPStrategy
 import os
 
-from src.data.aicszarr import AICSZarrPatchExpandedDataset, read_metadata_csv, TARGET_CHANNELS, src_channel, MAP_NAME_STRUCTURE
+from src.data.aicszarr import AICSZarrPatchExpandedDataset, read_metadata_csv, src_channel, MAP_NAME_STRUCTURE
 from src.model import WGANGP, UNet, Discriminator, ResNet3D, ResidualBlock, Classifier
 from src.utils.utils import get_device
 from src.utils.parsers import add_training_parser_argument
@@ -69,6 +69,7 @@ def main():
 
     DATASET_DIR = args.dataset
     structures_of_interest = args.structures_of_interest
+    target_channels = args.target_channels
 
     checkpoint_path = args.checkpoint
 
@@ -92,7 +93,10 @@ def main():
     negative_slope_c = args.negative_slope_critic  # 0.05
 
     num_workers = args.num_workers
-    prefetch_factor = args.prefetch_factor
+    if num_workers > 0:
+        prefetch_factor = args.prefetch_factor
+    else:
+        prefetch_factor = None
 
     print(args)
 
@@ -106,7 +110,7 @@ def main():
 
     df_metadata, channels_pooled_stats, target_channels = read_metadata_csv(
         DATASET_DIR=DATASET_DIR,
-        src_types=src_channel, target_channels=TARGET_CHANNELS, magnifications=120,
+        src_types=src_channel, target_channels=target_channels, magnifications=120,
         compute_pooled_stats=compute_pooled_stats, specific_structures=specific_structures_names,
         unify_channels=True,
     )
@@ -238,11 +242,11 @@ def main():
 
     wmodel = WGANGP(Generator, Critic, wgan_config)
 
-    version = f"{z_range}_{str(wmodel.__class__).split('.')[-1][:-2]}_advT_{adversarial_training}_LReLU_{negative_slope_g}_{ndim}D__{batch_size}"
+    version = f"{z_range}_{str(wmodel.__class__).split('.')[-1][:-2]}_advT_{adversarial_training}_{ndim}D_{depth}D_{lr_g}lrG_{lr_d}lrD_{structures_of_interest}"
     loggers = L.pytorch.loggers.TensorBoardLogger('.', version=version)
     trainer = L.Trainer(max_epochs=epochs, precision="bf16-mixed", logger=loggers, num_sanity_val_steps=0, accelerator=accelerator, 
-                        devices=[gpuid],
-                        # strategy=DDPStrategy(find_unused_parameters=True),
+                        # devices=[gpuid],
+                        strategy=DDPStrategy(find_unused_parameters=True),
                         )
 
     if checkpoint_path:
