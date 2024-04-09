@@ -1,5 +1,6 @@
 import pathlib
 import argparse
+from src.data.aicszarr import TARGET_CHANNELS
 
 
 def str2bool(v):
@@ -35,9 +36,18 @@ def add_training_parser_argument(parser):
         "--structures_of_interest",
         metavar="structures_of_interest",
         help="structures of interest",
-        type=list,
+        nargs = '+',
         default=["TOMM20", "ACTB", "MYH10", "ACTN1", "LMNB1", "FBL", "NPM1"],
     )
+    
+    parser.add_argument(
+        "-tc",
+        "--target_channels",
+        nargs='+',
+        default = TARGET_CHANNELS,
+        help="target channels",
+    )
+    
     parser.add_argument(
         "-e",
         "--epochs",
@@ -245,7 +255,7 @@ def add_train_classifier_arguments(parser):
         "--structures_of_interest",
         metavar="structures_of_interest",
         help="structures of interest",
-        type=list,
+        nargs = '+',
         default=["TOMM20", "ACTB", "MYH10", "ACTN1", "LMNB1", "FBL", "NPM1"],
     )
     parser.add_argument(
@@ -383,7 +393,7 @@ def add_train_n2v_arguments(parser):
         "--structures_of_interest",
         metavar="structures_of_interest",
         help="structures of interest",
-        type=list,
+        nargs = '+',
         default=["TOMM20", "ACTB", "MYH10", "ACTN1", "LMNB1", "FBL", "NPM1"],
     )
 

@@ -539,24 +539,29 @@ def read_metadata_csv(
         df_metadata["zfocusint_nucleoli"] = df_metadata[[
             "zfocusint_nucleoli(DFC)", "zfocusint_nucleoli(GC)"]].apply(non_empty, axis=1)
 
-        # target_channels.remove("actin_bundles")
-        # target_channels.remove("actin_filaments")
-        # target_channels.remove("actomyosin_bundles")
-        # target_channels.append("myofibrils")
-
-        # target_channels.remove("nucleoli(DFC)")
-        # target_channels.remove("nucleoli(GC)")
-        # target_channels.append("nucleoli")
-
         new_target_channels = target_channels.copy()
-        new_target_channels.remove("actin_bundles")
-        new_target_channels.remove("actin_filaments")
-        new_target_channels.remove("actomyosin_bundles")
-        new_target_channels.append("myofibrils")
-        new_target_channels.remove("nucleoli(DFC)")
-        new_target_channels.remove("nucleoli(GC)")
-        new_target_channels.append("nucleoli")
-
+        myofibrils_channels = False
+        if "actin_bundles" in new_target_channels:
+            new_target_channels.remove("actin_bundles")
+            myofibrils_channels = True
+        if "actin_filaments" in new_target_channels:
+            new_target_channels.remove("actin_filaments")
+            myofibrils_channels = True
+        if "actomyosin_bundles" in new_target_channels:
+            new_target_channels.remove("actomyosin_bundles")
+            myofibrils_channels = True
+        if myofibrils_channels:
+            new_target_channels.append("myofibrils")
+        
+        nucleoli_channels = False
+        if "nucleoli(DFC)" in new_target_channels:
+            new_target_channels.remove("nucleoli(DFC)")
+            nucleoli_channels = True
+        if "nucleoli(GC)" in new_target_channels:
+            new_target_channels.remove("nucleoli(GC)")
+            nucleoli_channels = True
+        if nucleoli_channels:
+            new_target_channels.append("nucleoli")
 
     return df_metadata, channels_pooled_stats, new_target_channels
 

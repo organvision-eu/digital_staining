@@ -70,12 +70,17 @@ The script will denoise the target channels using the source channel as input, a
 To train the model, run the following command:
 
 ```shell
-python train.py --dataset <path_to_dataset_dir>
+python train.py --dataset <path_to_dataset_dir> -d <path_to_dataset>
 ```
-The following arguments are available:
+With the following required argument:
+
 - `-d` or `--dataset` : The path to the dataset. We used the [Allen Institute for Cell Science](https://www.allencell.org/) hiPSC Single-Cell Image Dataset introduced in [Viana, M.P., Chen, J., Knijnenburg, T.A. et al. Integrated intracellular organization and its variations in human iPS cells. Nature 613, 345–354 (2023). https://doi.org/10.1038/s41586-022-05563-7], preprocessed as described above.
 
+The following optional arguments are available:
+
 - `-s` or `--structures_of_interest` : A list containing the names of the genes corresponding to the structures of interest from the dataset. Default = ["TOMM20", "ACTB", "MYH10", "ACTN1", "LMNB1", "FBL", "NPM1"]. Corresponding to the following structures: ["mitochondria", "actin_filaments", "actomyosin_bundles", "actin_bundles","nuclear_envelope", "nucleoli(DFC)", "nucleoli(GC)"]. "DNA" and "cell_membrane" are always selected since they are present in all the images.
+
+- `-tc` or `--target_channels` : A list containing the names of the target channels. Default = ["DNA", "cell_membrane", "mitochondria", "actin_filaments", "actomyosin_bundles", "actin_bundles","nuclear_envelope", "nucleoli(DFC)", "nucleoli(GC)"]. 
  
 - `-e` or `--epochs` : The number of epochs to train the model. Default is 10.
 
