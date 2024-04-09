@@ -97,6 +97,8 @@ def main():
         prefetch_factor = args.prefetch_factor
     else:
         prefetch_factor = None
+        
+    ddp = args.ddp
 
     print(args)
 
@@ -245,13 +247,14 @@ def main():
     version = f"{z_range}_{str(wmodel.__class__).split('.')[-1][:-2]}_advT_{adversarial_training}_{ndim}D_{depth}D_{lr_g}lrG_{lr_d}lrD_{structures_of_interest}"
     loggers = L.pytorch.loggers.TensorBoardLogger('.', version=version)
     trainer = L.Trainer(max_epochs=epochs, precision="bf16-mixed", logger=loggers, num_sanity_val_steps=0, accelerator=accelerator, 
-                        # devices=[gpuid],
-                        strategy=DDPStrategy(find_unused_parameters=True),
+                        devices= 'auto' if ddp else [gpuid],
+                        strategy=DDPStrategy(find_unused_parameters=True) if ddp else "auto",
                         )
 
     if checkpoint_path:
         trainer.fit(model=wmodel, train_dataloaders=train_loader, val_dataloaders=val_loader,
-                    ckpt_path=checkpoint_path)
+                    ckpt_path=checkpoint_path
+                    )
     else:
         trainer.fit(model=wmodel, train_dataloaders=train_loader, val_dataloaders=val_loader,
                     )

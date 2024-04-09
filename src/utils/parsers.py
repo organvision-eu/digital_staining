@@ -187,7 +187,15 @@ def add_training_parser_argument(parser):
         type=int,
         default=4,
     )
-
+    
+    parser.add_argument(
+        '-ddp',
+        '--ddp',
+        type=str2bool,
+        default=True,
+        help = 'Use DistributedDataParallel for training'
+    )
+    
     parser.add_argument(
         '-ckpt',
         '--checkpoint',
