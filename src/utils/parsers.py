@@ -10,7 +10,11 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
-
+    
+def tuple_type(strings):
+    strings = strings.replace("(", "").replace(")", "")
+    mapped_int = map(int, strings.split(","))
+    return tuple(mapped_int)
 
 def add_training_parser_argument(parser):
 
@@ -105,7 +109,7 @@ def add_training_parser_argument(parser):
         "--patch_shape_training",
         metavar="patch_shape_training",
         help="patch shape training",
-        type=tuple,
+        type=tuple_type,
         default=(16, 128, 128),
     )
 
@@ -114,7 +118,7 @@ def add_training_parser_argument(parser):
         "--patch_stride_training",
         metavar="patch_stride_training",
         help="patch stride training",
-        type=tuple,
+        type=tuple_type,
         default=(8, 64, 64),
     )
 
@@ -132,7 +136,7 @@ def add_training_parser_argument(parser):
         "--patch_shape",
         metavar="patch_shape",
         help="patch shape",
-        type=tuple,
+        type=tuple_type,
         default=(16, 384, 384),
     )
 
@@ -141,7 +145,7 @@ def add_training_parser_argument(parser):
         "--patch_stride",
         metavar="patch_stride",
         help="patch stride",
-        type=tuple,
+        type=tuple_type,
         default=(16, 384, 384),
     )
 
@@ -287,7 +291,7 @@ def add_train_classifier_arguments(parser):
         "--patch_shape",
         metavar="patch_shape",
         help="patch shape",
-        type=tuple,
+        type=tuple_type,
         default=(16, 384, 384),
     )
     # patch stride training
@@ -296,7 +300,7 @@ def add_train_classifier_arguments(parser):
         "--patch_stride",
         metavar="patch_stride",
         help="patch stride",
-        type=tuple,
+        type=tuple_type,
         default=(16, 384, 384),
     )
     # batch size
