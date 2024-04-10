@@ -563,7 +563,9 @@ def read_metadata_csv(
         if nucleoli_channels:
             new_target_channels.append("nucleoli")
 
-    return df_metadata, channels_pooled_stats, new_target_channels
+        return df_metadata, channels_pooled_stats, new_target_channels
+    
+    return df_metadata, channels_pooled_stats, target_channels
 
 
 def pad_volume_to_multiple_of_8(volume):
