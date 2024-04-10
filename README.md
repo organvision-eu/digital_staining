@@ -127,6 +127,8 @@ It's possible to adjust the classifier training with many optional argments, tha
 
 - `--gpuid` : The id of the gpu to use. Default is 0.
 
+- `-ddp` or `--ddp` : Whether to use distributed data parallel for training. Default is True.
+
 - `--deterministic` : Whether to use deterministic training. Default is False.
 
 - `--benchmark`: Whether to use Lightning benchmark mode. Default is True
