@@ -78,7 +78,8 @@ def inference(img_path, ckp_path, output_path, output_format, section, source, d
     with torch.inference_mode():
         output = Gen(source).squeeze(0)
 
-    save_output(output, output_format, output_path, target_channels)
+    if output_format is not None:
+        save_output(output, output_format, output_path, target_channels)
 
     return output
 
