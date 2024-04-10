@@ -244,7 +244,7 @@ def main():
 
     wmodel = WGANGP(Generator, Critic, wgan_config)
 
-    version = f"{z_range}_{str(wmodel.__class__).split('.')[-1][:-2]}_advT_{adversarial_training}_{ndim}D_{depth}D_{lr_g}lrG_{lr_d}lrD_{structures_of_interest}"
+    version = f"{z_range}_{str(wmodel.__class__).split('.')[-1][:-2]}_advT_{adversarial_training}_{ndim}D_depth:{depth}_{lr_g}lrG_{lr_d}lrD_{structures_of_interest}"
     loggers = L.pytorch.loggers.TensorBoardLogger('.', version=version)
     trainer = L.Trainer(max_epochs=epochs, precision="bf16-mixed", logger=loggers, num_sanity_val_steps=0, accelerator=accelerator, 
                         devices= 'auto' if ddp else [gpuid],

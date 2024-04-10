@@ -79,24 +79,22 @@ class WGANGP(L.LightningModule):
 
         x, y_real = batch
 
-        mask = ~(y_real.isnan())
+        mask = ~(y_real.isnan())  # define a mask representing the elements where y_real has values (not NaNs)
 
-        y_real = torch.nan_to_num(y_real, nan=0.0)
-
-        batch_size = x.shape[0]
+        y_real = torch.nan_to_num(y_real, nan=0.0)  # substitute NaN values in y_real with zeros
 
         y_fake = self.generator(x)
 
-        y_fake_masked = y_fake*mask
+        y_fake_masked = y_fake*mask  # select the elements of y_fake that have a valid corresponding element in y_real
 
         ##########################
         # Optimize Discriminator #
         ##########################
-        real_concat_with_input = torch.cat((x, y_real), 1)
-        real_out = self.discriminator(real_concat_with_input).mean()
+        real_concat_with_input = torch.cat((x, y_real), 1) #the critic has to determine the realisticness of source+target 
+        real_out = self.discriminator(real_concat_with_input).mean() #output of the critic on real input
 
         fake_concat_with_input = torch.cat((x, y_fake_masked.detach()), 1)
-        fake_out = self.discriminator(fake_concat_with_input).mean()
+        fake_out = self.discriminator(fake_concat_with_input).mean() #output of the critic on generated input
 
         lambda_gp = 10
         gp = self.compute_gp(real_concat_with_input, fake_concat_with_input)
@@ -133,24 +131,28 @@ class WGANGP(L.LightningModule):
 
         x, y_real = batch
 
-        mask = ~(y_real.isnan())
+        mask = ~(y_real.isnan())  # define a mask representing the elements where y_real has values (not NaNs)
 
-        y_real = torch.nan_to_num(y_real, nan=0.0)
+        y_real = torch.nan_to_num(y_real, nan=0.0)  # substitute NaN values in y_real with zeros
 
         y_fake = self.generator(x)
 
-        y_fake_masked = y_fake*mask
+        y_fake_masked = y_fake*mask  # select the elements of y_fake that have a valid corresponding element in y_real
 
+        ######################
         # Optimize Generator #
-        l1_loss_train = self.L1Loss(y_fake_masked, y_real)[mask].mean()
-        g_loss = l1_loss_train
+        ######################
+
+        # the pixel wise loss would be artificially low because the non existing channels in y_real are set to 0 also in y_fake_masked
+        # reduce the L1loss by computing the mean only on the valid channels       
+        g_loss = self.L1Loss(y_fake_masked, y_real)[mask].mean()
         opt_g.zero_grad()
-        self.manual_backward(g_loss)
-        opt_g.step()
+        self.manual_backward(g_loss) #compute gradients
+        opt_g.step() #update weights of the generator
 
         if batch_idx % 5 == 0:
             self.log_dict({"g_loss": g_loss,
-                           "train_L1": l1_loss_train,
+                           "train_L1": g_loss,
                            }, prog_bar=True)
 
     def training_step(self, batch, batch_idx):
@@ -202,7 +204,7 @@ class WGANGP(L.LightningModule):
         l1loss = self.L1Loss(y_fake, y_real)
         l1loss_mean = l1loss[mask].mean()
         self.log("val_L1", l1loss_mean, on_step=False,
-                 on_epoch=True, prog_bar=True)
+                 on_epoch=True, prog_bar=True, sync_dist=True)
 
         if self.use_classification_metric:
             f1_macro, f1_micro, f1_weighted = classification_metrics(
@@ -215,9 +217,10 @@ class WGANGP(L.LightningModule):
                      on_epoch=True, prog_bar=True)
 
         for i, ch in enumerate(self.target_channels):
+            # select the channel and compute the mean only for that channel, for the samples in the batch that have that channel populated
             channel_loss = l1loss[:, i, ...][mask[:, i, ...]].mean()
             if not channel_loss.isnan():
-                self.log(f"L1_{ch}", channel_loss)
+                self.log(f"L1_{ch}", channel_loss, sync_dist=True)
 
         if self.counter > 5:
             tensorboard = self.logger.experiment

@@ -302,6 +302,23 @@ class AICSZarrPatchExpandedDataset(Dataset, AICSDataset):
         shuffle: bool = True,
         random_seed: int = 0,
     ):
+        """Args:
+            file_list_meta (pd.DataFrame): metadata dataframe 
+            root_dir (str): root directory with subdirs representing the different structures, containing the zarr files.
+            signal_channel (str): Name of the signal channel. (source)
+            target_channels (list): List of target channel names.
+            patch_shape (tuple): Size of the patch. 
+            patch_strides (tuple): Stride of the patch. If None, non-overlapping patches are used.
+            ndim (int): Number of dimensions of the patch.
+            ignore_incomplete_patches (bool): Ignore incomplete patches.
+            z_range (tuple): Range of z values to use.
+            dtype (np.dtype): Data type of the patch.
+            use_normalization (str): Type of normalization to use.
+            normalization_p (float): p value for Lp normalization.
+            normalization_stats (dict): Dictionary with the mean and std of the data.
+            shuffle (bool): Shuffle the dataset.
+            random_seed (int): Random seed for shuffling."""
+        
         AICSDataset.__init__(self, root_dir, signal_channel, target_channels, patch_shape, patch_strides, ndim,
                              ignore_incomplete_patches, z_range, dtype, use_normalization, normalization_p, normalization_stats)
 
@@ -376,12 +393,6 @@ class AICSZarrPatchExpandedDataset(Dataset, AICSDataset):
         src_data /= np.iinfo(data.dtype).max
         target_data /= np.iinfo(data.dtype).max
 
-        # src_data = (data.oindex[[src_ch_idx], slice_z, slice_y, slice_x] / np.iinfo(data.dtype).max).astype(self.dtype)
-        # target_data = (data.oindex[target_zarr_ch_idx, slice_z, slice_y, slice_x] / np.iinfo(data.dtype).max).astype(self.dtype)
-
-        # src_data = torch.from_numpy(src_data)
-        # target_data = torch.from_numpy(target_data)
-
         if self.use_normalization:
             if self.use_normalization == 'standard_per_fov':
                 src_type = meta['src_type']
@@ -429,6 +440,16 @@ def read_metadata_csv(
     specific_structures: str | list[str] | None = None,
     unify_channels: bool = False,
 ):
+    """Read metadata csv file and filter on src_types, target_channels, magnifications and specific_structures.
+    Args:
+        DATASET_DIR (pathlib.Path): Path to the dataset directory.
+        src_types (str, list): Source types to filter on.
+        target_channels (list): Target channels to filter on.
+        magnifications (int, list): Magnifications to filter on.
+        compute_pooled_stats (bool): Compute pooled stats.
+        specific_structures (str, list): Specific structures to filter on.
+        unify_channels (bool): Unify channels to myofibrils (actin_filaments, actin_bundles, actomyosin_bundles) and nucleoli (nucleoli(DFC), nucleoli(GC))."""
+    
     df_metadata = pd.read_csv(
         DATASET_DIR / "metadata.csv",
         index_col="filename",
@@ -569,6 +590,7 @@ def read_metadata_csv(
 
 
 def pad_volume_to_multiple_of_8(volume):
+    """Pad a 3D volume to have dimensions that are multiples of 8."""
     depth, height, width = volume.size()[-3:]
 
     # Calculate the amount of padding needed for each dimension
