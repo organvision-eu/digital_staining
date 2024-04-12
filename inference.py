@@ -34,11 +34,9 @@ def load_generator(ckp_path):
         out_channels=len(target_channels),
         mult_chan=mult_chan,
     )
-    # checkpoint = torch.load(ckp_path, map_location=device)
-    # model_state_dict = checkpoint['state_dict']
-    # model_state_dict = OrderedDict([(k.replace('generator.', ''), v) for k, v in model_state_dict.items() if 'generator' in k])
-    # Gen.load_state_dict(model_state_dict)
+
     Gen.load_state_dict(gen_ckp['gen_state_dict'])
+    
     return Gen, target_channels
 
 
