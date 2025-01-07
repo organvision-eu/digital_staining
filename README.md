@@ -158,6 +158,27 @@ The following optional arguments are available:
 
 - `-src` or `--source` : Int representing the position of the source channel in the input image. Default is 3, since in our dataset the brightfield (source) channel is the fourth one.
 
+## How to Cite
+
+If you use this repository in your research, please cite our paper:
+
+```
+@article{venieri2024generative,
+  title={Generative Adversarial Networks for Virtual Fluorescent Staining},
+  author={Venieri, Lorenzo and Masella, Andrea and Broggio, Elia and Marchese, Andrea and Bregonzio, Matteo},
+  journal={Human-Centric Decision and Negotiation Support for Societal Transitions},
+  pages={13},
+  year={2024}
+}
+```
+
+[Generative Adversarial Networks for Virtual Fluorescent Staining](https://gdnicdsst2024.fe.up.pt/wp-content/uploads/sites/1018/2024/06/GDNICDSST2024_LProceedingsvol1.pdf#page=29)
+
+For more details, see:
+
+[Venieri, L. (2024). Generative Adversarial Networks for Virtual Fluorescent Staining. 
+Master's Thesis, Alma Mater Studiorum - University of Bologna.](https://amslaurea.unibo.it/id/eprint/31624/1/LorenzoVenieri_AIThesis.pdf)
+
 ## License
 
 All work is licensed under CC BY-NC-ND 4.0 https://creativecommons.org/licenses/by-nc-nd/4.0/
